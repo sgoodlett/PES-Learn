@@ -19,13 +19,6 @@ class MKNNModel(nn.Module):
             self.model_lf.add_module('activ' + str(i), activ)
         self.model_lf.add_module('output', nn.Linear(layers[depth-1], 1))
         
-        #structure_hf = OrderedDict([('input', nn.Linear(inp_dim+1, layers[0])),
-        #                         ('activ_in' , activ)]) # Add one to inp_dim for LF energy
-        #self.nonlinear_hf = nn.Sequential(structure_hf) # Nonlinear NN for HF prediction
-        #for i in range(depth-1):
-        #    self.nonlinear_hf.add_module('layer' + str(i), nn.Linear(layers[i], layers[i+1]))
-        #    self.nonlinear_hf.add_module('activ' + str(i), activ)
-        #self.nonlinear_hf.add_module('output', nn.Linear(layers[depth-1], 1))
         self.nonlinear_hf = nn.Sequential(
                 nn.Linear(inp_dim+1,32),
                 nn.Tanh(),
@@ -41,8 +34,6 @@ class MKNNModel(nn.Module):
     def forward(self, xh, xl):
         yl = self.model_lf(xl)
         yl_xh = self.model_lf(xh)
-        #print(xh.shape)
-        #print(yl_xh.shape)
         hin = torch.cat((xh,yl_xh), dim=1)
         nliny = self.nonlinear_hf(hin)
         liny = self.linear_hf(hin)
